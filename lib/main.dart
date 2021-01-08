@@ -1,27 +1,95 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:notesapp/screens/Splashscreen.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(MyApp());
+import 'models.dart' show CurrentUser;
+import 'screens.dart' show HomeScreen, LoginScreen, NoteEditor, SettingsScreen;
+import 'styles.dart';
+
+void main() async {
+
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+
+
+  runApp(NotesApp(),);
+
 }
 
-class MyApp extends StatelessWidget {
+class NotesApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Notes App',
-      theme: ThemeData(
 
-        primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+  Widget build(BuildContext context) => StreamProvider.value(
+    // ignore: deprecated_member_use
+    value: FirebaseAuth.instance.onAuthStateChanged.map((user) => CurrentUser.create(user)),
+    initialData: CurrentUser.initial,
+    child: Consumer<CurrentUser>(
+      builder: (context, user, _) => MaterialApp(
+        title: 'Notes Keep',
+        theme: Theme.of(context).copyWith(
+          brightness: Brightness.light,
+          primaryColor: Colors.white,
+          accentColor: kAccentColorLight,
+          appBarTheme: AppBarTheme.of(context).copyWith(
+            elevation: 0,
+            brightness: Brightness.light,
+            iconTheme: IconThemeData(
+              color: kIconTintLight,
+            ),
+          ),
+          scaffoldBackgroundColor: Colors.white,
+          bottomAppBarColor: kBottomAppBarColorLight,
+          primaryTextTheme: Theme.of(context).primaryTextTheme.copyWith(
+            // title
+            headline6: const TextStyle(
+              color: kIconTintLight,
+            ),
+          ),
+        ),
+        home: user.isInitialValue
+          ? Scaffold(body: const SizedBox())
+          : user.data != null ?   HomeScreen() : LoginScreen(),
+        routes: {
+          '/settings': (_) => SettingsScreen(),
+        },
+        onGenerateRoute: _generateRoute,
       ),
-      home:  SplashScreen()
-    );
+    ),
+  );
+
+  /// Handle named route
+  Route _generateRoute(RouteSettings settings) {
+    try {
+      return _doGenerateRoute(settings);
+    } catch (e, s) {
+      debugPrint("failed to generate route for $settings: $e $s");
+      return null;
+    }
   }
+
+  Route _doGenerateRoute(RouteSettings settings) {
+    if (settings.name?.isNotEmpty != true) return null;
+
+    final uri = Uri.parse(settings.name);
+    final path = uri.path ?? '';
+    // final q = uri.queryParameters ?? <String, String>{};
+    switch (path) {
+      case '/note': {
+        final note = (settings.arguments as Map ?? {})['note'];
+        return _buildRoute(settings, (_) => NoteEditor(note: note));
+      }
+      default:
+        return null;
+    }
+  }
+
+  /// Create a [Route].
+  Route _buildRoute(RouteSettings settings, WidgetBuilder builder) =>
+    MaterialPageRoute<void>(
+      settings: settings,
+      builder: builder,
+    );
 }
-
-

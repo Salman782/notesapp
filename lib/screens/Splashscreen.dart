@@ -24,7 +24,8 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.redAccent,
       body: Center(
-        child: Image.asset('assets/bs.jpg'),
+        child: Text("NOTES APP"),
+       // child: Image.asset('assets/b.jpeg'),
       ),
     );
   }

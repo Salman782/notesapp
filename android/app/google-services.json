@@ -1,13 +1,14 @@
 {
   "project_info": {
     "project_number": "827279638352",
+    "firebase_url": "https://storage-2f51f-default-rtdb.firebaseio.com",
     "project_id": "storage-2f51f",
     "storage_bucket": "storage-2f51f.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:827279638352:android:89bb496621b77a5514f655",
+        "mobilesdk_app_id": "1:827279638352:android:97abf4d61ee3f12714f655",
         "android_client_info": {
           "package_name": "com.example.notesapp"
         }
